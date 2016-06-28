@@ -807,22 +807,45 @@ define([
             },
 
             download: function () {
-                var dirents = this.dir,
-                    selected_dirents = dirents.where({'selected':true}),
-                    selected_names = '';
+                var dirents = this.dir;
+                var selected_dirents = dirents.where({'selected':true});
+                var selected_names = [];
+                var interval;
+                var token;
+                var queryZipProgress = function() {
+                    $.ajax({
+                        url: Common.getUrl({name: 'query-zip-progress'}) + '?token=' + token,
+                        dataType: 'json',
+                        cache: false,
+                        success: function (data) {
+                            if (data['total'] == data['zipped']) {
+                                clearInterval(interval);
+                                location.href = Common.getUrl({name: 'download-dir-zip-url', token: token});
+                            }
+                        },
+                        error: function (xhr) {
+                            Common.ajaxErrorHandler(xhr);
+                            clearInterval(interval);
+                        }
+                    });
+                };
 
                 $(selected_dirents).each(function() {
-                    selected_names += this.get('obj_name') + ',';
+                    selected_names.push(this.get('obj_name'));
                 });
 
                 $.ajax({
-                    url: Common.getUrl({
-                        name: 'download_dirents',
-                        repo_id: dirents.repo_id
-                    }) + '?parent_dir=' + encodeURIComponent(dirents.path) + '&dirents=' + encodeURIComponent(selected_names),
+                    url: Common.getUrl({name: 'file-server-token',repo_id: dirents.repo_id}),
+                    data: {
+                        'parent_dir': dirents.path,
+                        'dirents': selected_names
+                    },
                     dataType: 'json',
+                    traditional: true,
                     success: function(data) {
-                        location.href = data['url'];
+                        token = data['token'];
+                        queryZipProgress();
+                        interval = setInterval(queryZipProgress, 1000);
                     },
                     error: function (xhr) {
                         Common.ajaxErrorHandler(xhr);

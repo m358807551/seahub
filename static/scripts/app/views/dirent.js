@@ -69,6 +69,7 @@ define([
         events: {
             'click .select': 'select',
             'click .file-star': 'starFile',
+            'click .download-dir': 'downloadDir',
             'click .share': 'share',
             'click .delete': 'del', // 'delete' is a preserve word
             'click .rename': 'rename',
@@ -116,6 +117,49 @@ define([
             } else {
                 $toggle_all_checkbox.prop('checked', false);
             }
+        },
+
+        downloadDir: function() {
+            var dir = this.dirView.dir;
+            var obj_name = this.model.get('obj_name');
+
+            var interval;
+            var token;
+            var queryZipProgress = function() {
+                $.ajax({
+                    url: Common.getUrl({name: 'query-zip-progress'}) + '?token=' + token,
+                    dataType: 'json',
+                    cache: false,
+                    success: function (data) {
+                        if (data['total'] == data['zipped']) {
+                            clearInterval(interval);
+                            location.href = Common.getUrl({name: 'download-dir-zip-url', token: token});
+                        }
+                    },
+                    error: function (xhr) {
+                        Common.ajaxErrorHandler(xhr);
+                        clearInterval(interval);
+                    }
+                });
+            };
+
+            $.ajax({
+                url: Common.getUrl({
+                    name: 'file-server-token',
+                    repo_id: dir.repo_id
+                }) + '?parent_dir=' + encodeURIComponent(dir.path) + '&dirents=' + encodeURIComponent(obj_name),
+                dataType: 'json',
+                success: function(data) {
+                    token = data['token'];
+                    queryZipProgress();
+                    interval = setInterval(queryZipProgress, 1000);
+                },
+                error: function (xhr) {
+                    Common.ajaxErrorHandler(xhr);
+                }
+            });
+
+            return false;
         },
 
         starFile: function() {

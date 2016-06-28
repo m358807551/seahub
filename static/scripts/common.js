@@ -73,12 +73,15 @@ define([
 
         getUrl: function(options) {
             var siteRoot = app.config.siteRoot;
+            var fileServerRoot = app.config.fileServerRoot;
             switch (options.name) {
                 // File Operations
                 case 'list_lib_dir': return siteRoot + 'ajax/lib/' + options.repo_id + '/dir/';
                 case 'del_dir': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/dir/';
                 case 'del_file': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/file/';
-                case 'download_dirents': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/dirents/download-link/';
+                case 'download-dir-zip-url': return fileServerRoot + 'zip/' + options.token;
+                case 'file-server-token': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/file-server-token/';
+                case 'query-zip-progress': return siteRoot + 'api/v2.1/query-zip-progress/';
                 case 'rename_dir': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/dir/';
                 case 'rename_file': return siteRoot + 'api/v2.1/repos/' + options.repo_id + '/file/';
                 case 'mv_dir': return siteRoot + 'ajax/repo/' + options.repo_id + '/dir/mv/';
