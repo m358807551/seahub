@@ -808,19 +808,20 @@ define([
 
             download: function () {
                 var dirents = this.dir;
+                var parent_dir = dirents.path;
                 var selected_dirents = dirents.where({'selected':true});
                 var selected_names = [];
                 var interval;
-                var token;
+                var zip_token;
                 var queryZipProgress = function() {
                     $.ajax({
-                        url: Common.getUrl({name: 'query-zip-progress'}) + '?token=' + token,
+                        url: Common.getUrl({name: 'query_zip_progress'}) + '?token=' + zip_token,
                         dataType: 'json',
                         cache: false,
                         success: function (data) {
                             if (data['total'] == data['zipped']) {
                                 clearInterval(interval);
-                                location.href = Common.getUrl({name: 'download-dir-zip-url', token: token});
+                                location.href = Common.getUrl({name: 'download_dir_zip_url', zip_token: zip_token});
                             }
                         },
                         error: function (xhr) {
@@ -830,20 +831,27 @@ define([
                     });
                 };
 
+                if (selected_dirents.length == 1 && selected_dirents[0].get('is_file')) {
+                    // only select one file
+                    var file_path = parent_dir + '/' + selected_dirents[0].get('obj_name');
+                    location.href = Common.getUrl({name: 'get_file_download_url', repo_id: dirents.repo_id, file_path: encodeURIComponent(file_path)});
+                    return false
+                }
+
                 $(selected_dirents).each(function() {
                     selected_names.push(this.get('obj_name'));
                 });
 
                 $.ajax({
-                    url: Common.getUrl({name: 'file-server-token',repo_id: dirents.repo_id}),
+                    url: Common.getUrl({name: 'zip_task', repo_id: dirents.repo_id}),
                     data: {
-                        'parent_dir': dirents.path,
+                        'parent_dir': parent_dir,
                         'dirents': selected_names
                     },
                     dataType: 'json',
                     traditional: true,
                     success: function(data) {
-                        token = data['token'];
+                        zip_token = data['zip_token'];
                         queryZipProgress();
                         interval = setInterval(queryZipProgress, 1000);
                     },

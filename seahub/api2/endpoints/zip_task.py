@@ -23,7 +23,7 @@ from seaserv import seafile_api
 
 logger = logging.getLogger(__name__)
 
-class FileServerTokenView(APIView):
+class ZipTaskView(APIView):
 
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
@@ -127,7 +127,7 @@ class FileServerTokenView(APIView):
 
         username = request.user.username
         try:
-            token = seafile_api.get_fileserver_access_token(
+            zip_token = seafile_api.get_fileserver_access_token(
                     repo_id, json.dumps(fake_obj_id), download_type, username)
         except Exception as e:
             logger.error(e)
@@ -141,4 +141,4 @@ class FileServerTokenView(APIView):
                 full_dirent_path = posixpath.join(parent_dir, dirent_name)
                 send_file_access_msg(request, repo, full_dirent_path, 'web')
 
-        return Response({'token': token})
+        return Response({'zip_token': zip_token})

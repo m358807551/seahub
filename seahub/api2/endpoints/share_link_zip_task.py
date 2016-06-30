@@ -22,12 +22,13 @@ from seaserv import seafile_api
 
 logger = logging.getLogger(__name__)
 
-class ShareLinkFileServerTokenView(APIView):
+class ShareLinkZipTaskView(APIView):
 
     throttle_classes = (UserRateThrottle,)
 
     def get(self, request, format=None):
-        """ Only used for download dir when view dir share link.
+        """ Only used for download dir when view dir share link from web.
+
 
         Permission checking:
         1. authenticated user OR anonymous user has passed email code check(if necessary);
@@ -104,7 +105,7 @@ class ShareLinkFileServerTokenView(APIView):
 
         username = request.user.username
         try:
-            file_server_token = seafile_api.get_fileserver_access_token(
+            zip_token = seafile_api.get_fileserver_access_token(
                     repo_id, json.dumps(fake_obj_id), 'download-dir', username)
         except Exception as e:
             logger.error(e)
@@ -116,4 +117,4 @@ class ShareLinkFileServerTokenView(APIView):
 
         send_file_access_msg(request, repo, real_path, 'share-link')
 
-        return Response({'file_server_token': file_server_token})
+        return Response({'zip_token': zip_token})

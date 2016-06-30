@@ -192,7 +192,7 @@ var file_server_root = '{{FILE_SERVER_ROOT}}';
 $('.shared-dir-zip, .download-dir').click(function (e) {
     var cur_download_dir_path,
         cur_download_dir_name,
-        file_server_token;
+        zip_token;
 
     var target = e.target || event.srcElement;
 
@@ -210,13 +210,13 @@ $('.shared-dir-zip, .download-dir').click(function (e) {
 
     var queryZipProgress = function() {
         $.ajax({
-            url: '{% url 'api-v2.1-query-zip-progress' %}' + '?token=' + file_server_token,
+            url: '{% url 'api-v2.1-query-zip-progress' %}' + '?token=' + zip_token,
             dataType: 'json',
             cache: false,
             success: function (data) {
                 if (data['total'] == data['zipped']) {
                     clearInterval(interval);
-                    location.href = file_server_root + 'zip/' + file_server_token;
+                    location.href = file_server_root + 'zip/' + zip_token;
                 }
             },
             error: function (xhr) {
@@ -231,11 +231,11 @@ $('.shared-dir-zip, .download-dir').click(function (e) {
     };
 
     $.ajax({
-        url: '{% url 'api-v2.1-share-link-file-server-token' %}' + '?share_link_token=' + share_link_token + '&path=' + encodeURIComponent(cur_download_dir_path),
+        url: '{% url 'api-v2.1-share-link-zip-task' %}' + '?share_link_token=' + share_link_token + '&path=' + encodeURIComponent(cur_download_dir_path),
         dataType: 'json',
         cache: false,
         success: function(data) {
-            file_server_token = data['file_server_token'];
+            zip_token = data['zip_token'];
             queryZipProgress();
             interval = setInterval(queryZipProgress, 1000);
         },

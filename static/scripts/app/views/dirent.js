@@ -122,18 +122,17 @@ define([
         downloadDir: function() {
             var dir = this.dirView.dir;
             var obj_name = this.model.get('obj_name');
-
             var interval;
-            var token;
+            var zip_token;
             var queryZipProgress = function() {
                 $.ajax({
-                    url: Common.getUrl({name: 'query-zip-progress'}) + '?token=' + token,
+                    url: Common.getUrl({name: 'query_zip_progress'}) + '?token=' + zip_token,
                     dataType: 'json',
                     cache: false,
                     success: function (data) {
                         if (data['total'] == data['zipped']) {
                             clearInterval(interval);
-                            location.href = Common.getUrl({name: 'download-dir-zip-url', token: token});
+                            location.href = Common.getUrl({name: 'download_dir_zip_url', zip_token: zip_token});
                         }
                     },
                     error: function (xhr) {
@@ -145,12 +144,12 @@ define([
 
             $.ajax({
                 url: Common.getUrl({
-                    name: 'file-server-token',
+                    name: 'zip_task',
                     repo_id: dir.repo_id
                 }) + '?parent_dir=' + encodeURIComponent(dir.path) + '&dirents=' + encodeURIComponent(obj_name),
                 dataType: 'json',
                 success: function(data) {
-                    token = data['token'];
+                    zip_token = data['zip_token'];
                     queryZipProgress();
                     interval = setInterval(queryZipProgress, 1000);
                 },
