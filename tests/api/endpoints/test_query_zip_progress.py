@@ -13,7 +13,7 @@ class QueryZipProgressViewTest(BaseTestCase):
         parent_dir = '/'
         folder_name = self.folder
         args = '?parent_dir=%s&dirents=%s' % (parent_dir, folder_name)
-        url = reverse('api-v2.1-zip-token', args=[self.repo.id]) + args
+        url = reverse('api-v2.1-zip-task', args=[self.repo.id]) + args
 
         resp = self.client.get(url)
         self.assertEqual(200, resp.status_code)
